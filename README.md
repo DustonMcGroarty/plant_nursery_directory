@@ -50,8 +50,36 @@ United States, built with Next.js (App Router) and PostgreSQL/Prisma.
 
 ## Getting real, nationwide nursery data
 
-The seed data is placeholder only. To populate the directory with real
-nurseries, run the Google Places import pipeline:
+The seed data is placeholder only. There are two import pipelines to
+populate the directory with real nurseries — both write imported listings
+as `status: PENDING` so they go through the `/admin` moderation queue
+before appearing publicly (both sources occasionally include mis-tagged
+or stale businesses, so a human sanity-check is worth the friction).
+
+**Neither runs automatically.** This sandboxed dev environment's network
+policy blocks both APIs, so these need to be run from an environment with
+normal internet access — your own machine, a CI job, or after the app is
+deployed.
+
+### Option A: OpenStreetMap (recommended — free, no API key)
+
+```bash
+npm run db:import-osm
+```
+
+`scripts/import-osm.ts` queries the free Overpass API once per US state
+for nodes/ways tagged `shop=garden_centre` (retail garden centers) or
+`landuse=plant_nursery` (wholesale growers), de-duplicating by OSM element
+ID. No API key, no billing, and OpenStreetMap's ODbL license explicitly
+permits building a directory from the data — you just need to credit
+"© OpenStreetMap contributors" somewhere on the site once real OSM data
+is live (a line in the footer is enough).
+
+Some entries get skipped if OSM has no city tag for them (rural or
+sparsely-mapped areas); the script logs how many. Those nurseries can
+still be added manually via `/submit`.
+
+### Option B: Google Places API (more complete, costs money)
 
 ```bash
 GOOGLE_PLACES_API_KEY=your-key npm run db:import-places
@@ -59,24 +87,20 @@ GOOGLE_PLACES_API_KEY=your-key npm run db:import-places
 
 `scripts/import-places.ts` tiles the entire US into overlapping search
 circles and runs a Places "Text Search" (`plant nursery`) against each,
-de-duplicating by Google's place ID and importing results as `PENDING`
-(reviewed via `/admin` before publishing — Places results sometimes
-include mis-tagged businesses). This requires a billed Google Cloud
+de-duplicating by Google's place ID. Requires a billed Google Cloud
 project with the Places API (New) enabled.
 
-**Before running it at scale, read the comment at the top of the
-script** — Google's Places API Terms of Service place restrictions on
+**Read the comment at the top of the script before running it at
+scale** — Google's Places API Terms of Service place restrictions on
 caching and on using Places data to build a directory that competes with
-Google Maps. An alternative worth considering is importing from
-[OpenStreetMap](https://www.openstreetmap.org) (`shop=garden_centre`) via
-the Overpass API instead: it's free, requires no API key, and its ODbL
-license explicitly permits this kind of directory (with attribution).
+Google Maps. This is why OpenStreetMap is the recommended default.
 
 ## Project structure
 
 ```
 prisma/schema.prisma       Data model (Nursery, Specialty, ClaimRequest, User, Review, ...)
 prisma/seed.ts             Synthetic sample data for local dev
+scripts/import-osm.ts      OpenStreetMap import pipeline (see above, recommended)
 scripts/import-places.ts   Google Places import pipeline (see above)
 src/app/                   Routes: /, /search, /nursery/[slug], /submit, /admin
 src/lib/nursery-queries.ts Search/filter/geo query logic

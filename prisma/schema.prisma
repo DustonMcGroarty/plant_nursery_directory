@@ -31,6 +31,7 @@ enum NurseryStatus {
 enum DataSource {
   GOOGLE_PLACES
   YELP
+  OPENSTREETMAP
   MANUAL_SUBMISSION
   ADMIN
 }

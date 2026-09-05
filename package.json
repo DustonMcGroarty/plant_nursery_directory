@@ -8,10 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",
-    "db:import-places": "tsx scripts/import-places.ts"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "db:import-places": "tsx scripts/import-places.ts",
+    "db:import-osm": "tsx scripts/import-osm.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
