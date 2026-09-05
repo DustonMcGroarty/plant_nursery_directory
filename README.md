@@ -32,8 +32,9 @@ United States, built with Next.js (App Router) and PostgreSQL/Prisma.
    ```bash
    createdb plant_nursery_directory
    ```
-2. **Env vars.** Copy `.env.example` to `.env` and fill in `DATABASE_URL`
-   and a random `ADMIN_SECRET`.
+2. **Env vars.** Copy `.env.example` to `.env` and fill in `DATABASE_URL`,
+   `DIRECT_URL` (see the comment in `.env.example` — Supabase needs two
+   different connection strings), and a random `ADMIN_SECRET`.
 3. **Install, migrate, seed:**
    ```bash
    npm install
@@ -94,6 +95,37 @@ project with the Places API (New) enabled.
 scale** — Google's Places API Terms of Service place restrictions on
 caching and on using Places data to build a directory that competes with
 Google Maps. This is why OpenStreetMap is the recommended default.
+
+## Recommended path: populate Supabase, then deploy
+
+This runs the OpenStreetMap import once, against your real production
+database, before the site is public — so nobody sees placeholder data.
+
+1. **Create a Supabase project** (supabase.com -> New project). Wait for
+   it to finish provisioning.
+2. **Get your connection strings.** In the project, go to
+   Settings -> Database. Copy the "Transaction" pooler connection string
+   (port 6543) for `DATABASE_URL`, and the "Session" pooler or direct
+   connection string (port 5432) for `DIRECT_URL`. Put both in your local
+   `.env`, along with a random `ADMIN_SECRET`.
+3. **Create the tables** in Supabase:
+   ```bash
+   npx prisma migrate deploy
+   ```
+4. **Import real data:**
+   ```bash
+   npm run db:import-osm
+   ```
+   This can take a while (it makes one request per state, with polite
+   delays between them). It's safe to stop and re-run — already-imported
+   nurseries are skipped.
+5. **Review and publish.** Run `npm run dev` locally against that same
+   `.env`, open `/admin`, and approve the imported listings (or set
+   `AUTO_PUBLISH_IMPORTS=true` before running the import if you'd rather
+   skip review and publish everything immediately).
+6. **Deploy to Vercel**, pointing it at the same `DATABASE_URL` /
+   `DIRECT_URL` / `ADMIN_SECRET` values as env vars in the Vercel project
+   settings. The site now launches with real, already-reviewed data.
 
 ## Project structure
 
