@@ -1,0 +1,196 @@
+// Plant Nursery Directory - data model
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Core directory data
+// ---------------------------------------------------------------------------
+
+enum PlanTier {
+  FREE
+  FEATURED
+  PREMIUM
+}
+
+enum NurseryStatus {
+  PENDING // awaiting moderation, not shown publicly
+  PUBLISHED // live in the directory
+  REJECTED // moderated out
+  UNPUBLISHED // was live, pulled down (e.g. closed business)
+}
+
+enum DataSource {
+  GOOGLE_PLACES
+  YELP
+  MANUAL_SUBMISSION
+  ADMIN
+}
+
+model Nursery {
+  id   String @id @default(cuid())
+  slug String @unique
+  name String
+
+  // Address / location
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String // 2-letter USPS code, e.g. "OR"
+  postalCode   String
+  latitude     Float
+  longitude    Float
+
+  // Contact
+  phone   String?
+  website String?
+  email   String?
+
+  // Content
+  description String?
+  hours       Json? // structured opening hours, e.g. { "mon": "9:00-17:00", ... }
+  photos      NurseryPhoto[]
+
+  specialties NurserySpecialty[]
+
+  // Provenance / moderation
+  status     NurseryStatus @default(PENDING)
+  source     DataSource    @default(MANUAL_SUBMISSION)
+  externalId String? // e.g. Google Places place_id, for de-duplication on import
+  verifiedAt DateTime? // last time an owner or admin verified details are current
+
+  // Monetization
+  planTier       PlanTier  @default(FREE)
+  sponsoredUntil DateTime? // featured/premium placement expires at this date
+
+  // Ownership / claiming
+  ownerId String?
+  owner   User?          @relation(fields: [ownerId], references: [id])
+  claims  ClaimRequest[]
+
+  reviews Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([source, externalId])
+  @@index([state, city])
+  @@index([latitude, longitude])
+  @@index([status])
+  @@index([planTier])
+}
+
+model NurseryPhoto {
+  id        String   @id @default(cuid())
+  nursery   Nursery  @relation(fields: [nurseryId], references: [id], onDelete: Cascade)
+  nurseryId String
+  url       String
+  altText   String?
+  createdAt DateTime @default(now())
+
+  @@index([nurseryId])
+}
+
+model Specialty {
+  id        String             @id @default(cuid())
+  slug      String             @unique // e.g. "native-plants", "succulents", "wholesale"
+  name      String             @unique // e.g. "Native Plants"
+  nurseries NurserySpecialty[]
+}
+
+model NurserySpecialty {
+  nursery     Nursery   @relation(fields: [nurseryId], references: [id], onDelete: Cascade)
+  nurseryId   String
+  specialty   Specialty @relation(fields: [specialtyId], references: [id], onDelete: Cascade)
+  specialtyId String
+
+  @@id([nurseryId, specialtyId])
+  @@index([specialtyId])
+}
+
+// ---------------------------------------------------------------------------
+// Users, ownership, moderation
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  VISITOR
+  OWNER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      UserRole @default(VISITOR)
+  createdAt DateTime @default(now())
+
+  nurseries     Nursery[]
+  claimRequests ClaimRequest[]
+  reviews       Review[]
+}
+
+enum ClaimStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// Covers both "claim an existing listing" and "submit a brand new nursery"
+// (submissions are claims against a not-yet-existing nursery record).
+model ClaimRequest {
+  id     String      @id @default(cuid())
+  status ClaimStatus @default(PENDING)
+
+  // Set when claiming an existing listing; null when proposing a new one.
+  nursery   Nursery? @relation(fields: [nurseryId], references: [id], onDelete: Cascade)
+  nurseryId String?
+
+  // Proposed data for a new nursery submission, or corrections to an existing one.
+  proposedName         String?
+  proposedAddressLine1 String?
+  proposedAddressLine2 String?
+  proposedCity         String?
+  proposedState        String?
+  proposedPostalCode   String?
+  proposedPhone        String?
+  proposedWebsite      String?
+  proposedDescription  String?
+  proposedSpecialties  String[] // specialty slugs, resolved on approval
+
+  requester      User?   @relation(fields: [requesterId], references: [id])
+  requesterId    String?
+  requesterName  String
+  requesterEmail String
+  note           String? // free-text context from the submitter
+
+  reviewedAt   DateTime?
+  reviewerNote String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([nurseryId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  nursery   Nursery  @relation(fields: [nurseryId], references: [id], onDelete: Cascade)
+  nurseryId String
+  author    User?    @relation(fields: [authorId], references: [id])
+  authorId  String?
+  rating    Int // 1-5
+  body      String?
+  createdAt DateTime @default(now())
+
+  @@index([nurseryId])
+}
