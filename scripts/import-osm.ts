@@ -20,6 +20,14 @@
  * keeps each request small enough to avoid timeouts and makes the whole run
  * resumable (de-duplication is by OSM element id, so re-running after a
  * partial failure just skips what's already imported).
+ *
+ * Named features missing an addr:city tag get reverse-geocoded via
+ * Nominatim (also free, also OpenStreetMap) instead of being skipped —
+ * that service allows at most 1 request/second, so a run with a lot of
+ * these can take noticeably longer than the Overpass querying alone.
+ * Features with no name at all are skipped outright: there's no name to
+ * recover from this data source (most are unnamed growing-field land-use
+ * polygons, not businesses).
  */
 import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
@@ -109,6 +117,52 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// Nominatim (OpenStreetMap's free reverse-geocoding service) requires no
+// more than 1 request/second and a descriptive User-Agent. This tracks
+// the last call across the whole run (not per-state) so we never exceed
+// that regardless of how the calling loop is structured.
+let lastNominatimCallAt = 0;
+const NOMINATIM_MIN_INTERVAL_MS = 1100;
+
+interface ReverseGeocodeResult {
+  city: string;
+  postcode: string | null;
+}
+
+async function reverseGeocode(lat: number, lng: number): Promise<ReverseGeocodeResult | null> {
+  const wait = NOMINATIM_MIN_INTERVAL_MS - (Date.now() - lastNominatimCallAt);
+  if (wait > 0) await sleep(wait);
+  lastNominatimCallAt = Date.now();
+
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&addressdetails=1`;
+    const res = await fetch(url, {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "plant-nursery-directory-import/1.0",
+      },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as {
+      address?: {
+        city?: string;
+        town?: string;
+        village?: string;
+        hamlet?: string;
+        municipality?: string;
+        postcode?: string;
+      };
+    };
+    const addr = json.address ?? {};
+    const city = addr.city ?? addr.town ?? addr.village ?? addr.hamlet ?? addr.municipality ?? null;
+    if (!city) return null;
+    return { city, postcode: addr.postcode ?? null };
+  } catch {
+    return null;
+  }
+}
+
 async function uniqueSlug(base: string): Promise<string> {
   const baseSlug = slugify(base, { lower: true });
   let slug = baseSlug || "nursery";
@@ -129,19 +183,30 @@ export async function upsertElement(el: OverpassElement, fallbackState: string) 
   const lng = el.type === "node" ? el.lon : el.center?.lon;
   if (lat === undefined || lng === undefined) return "skipped_no_location";
 
-  const city = tags["addr:city"];
-  if (!city) return "skipped_no_city";
-  // Each Overpass query is already scoped to one state's area, so that's
-  // more trustworthy than the free-text addr:state tag, which sometimes
-  // has a full state name ("Oregon") or other non-standard value instead
-  // of the 2-letter code the rest of the app expects.
-  const state = fallbackState.toUpperCase();
-
+  // Check for a duplicate before the (rate-limited) geocoding lookup below
+  // — otherwise re-running the import wastes a Nominatim call on every
+  // nursery that's already been imported.
   const externalId = `${el.type}/${el.id}`;
   const existing = await prisma.nursery.findUnique({
     where: { source_externalId: { source: "OPENSTREETMAP", externalId } },
   });
   if (existing) return "duplicate";
+
+  let city = tags["addr:city"];
+  let postalCode = tags["addr:postcode"];
+  let cityWasEnriched = false;
+  if (!city) {
+    const geocoded = await reverseGeocode(lat, lng);
+    if (!geocoded) return "skipped_no_city";
+    city = geocoded.city;
+    postalCode = postalCode ?? geocoded.postcode ?? undefined;
+    cityWasEnriched = true;
+  }
+  // Each Overpass query is already scoped to one state's area, so that's
+  // more trustworthy than the free-text addr:state tag, which sometimes
+  // has a full state name ("Oregon") or other non-standard value instead
+  // of the 2-letter code the rest of the app expects.
+  const state = fallbackState.toUpperCase();
 
   const addressLine1 = [tags["addr:housenumber"], tags["addr:street"]]
     .filter(Boolean)
@@ -156,7 +221,7 @@ export async function upsertElement(el: OverpassElement, fallbackState: string) 
       addressLine1,
       city,
       state,
-      postalCode: tags["addr:postcode"] ?? "",
+      postalCode: postalCode ?? "",
       latitude: lat,
       longitude: lng,
       phone: tags.phone ?? tags["contact:phone"] ?? null,
@@ -167,12 +232,13 @@ export async function upsertElement(el: OverpassElement, fallbackState: string) 
       externalId,
     },
   });
-  return "created";
+  return cityWasEnriched ? "created_enriched_city" : "created";
 }
 
 async function main() {
   const stats: Record<string, number> = {
     created: 0,
+    created_enriched_city: 0,
     duplicate: 0,
     skipped_no_name: 0,
     skipped_no_location: 0,
@@ -205,11 +271,21 @@ async function main() {
   }
 
   console.log("Done.", stats);
-  console.log(
-    stats.skipped_no_city > 0
-      ? `Note: ${stats.skipped_no_city} nurseries were skipped because OSM had no addr:city tag for them. These can be added manually via the /submit form.`
-      : "",
-  );
+  if (stats.created_enriched_city > 0) {
+    console.log(
+      `Note: ${stats.created_enriched_city} nurseries had no addr:city tag in OSM, so their city was filled in via reverse geocoding (Nominatim) instead.`,
+    );
+  }
+  if (stats.skipped_no_city > 0) {
+    console.log(
+      `Note: ${stats.skipped_no_city} nurseries were skipped because OSM had no addr:city tag and reverse geocoding couldn't find one either (usually very rural areas). These can be added manually via the /submit form.`,
+    );
+  }
+  if (stats.skipped_no_name > 0) {
+    console.log(
+      `Note: ${stats.skipped_no_name} OSM features were skipped because they had no name at all (often unnamed plant-nursery land-use polygons rather than named businesses) - not recoverable from this data source.`,
+    );
+  }
 }
 
 const isMain = process.argv[1] && import.meta.url === `file://${process.argv[1]}`;
