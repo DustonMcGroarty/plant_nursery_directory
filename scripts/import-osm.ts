@@ -79,6 +79,9 @@ async function queryOverpass(query: string): Promise<OverpassElement[]> {
             "User-Agent": "plant-nursery-directory-import/1.0",
           },
           body: query,
+          // Without this, a mirror that hangs instead of erroring can
+          // stall the whole run far longer than the retry backoff implies.
+          signal: AbortSignal.timeout(30000),
         });
         if (res.status === 429 || res.status === 504) {
           await sleep(RETRY_BACKOFF_MS[attempt]);
@@ -169,9 +172,16 @@ async function main() {
     skipped_no_city: 0,
   };
 
-  for (const [i, state] of US_STATES.entries()) {
+  // Optional: restrict to specific states, e.g. ONLY_STATES=DE,RI for a
+  // quick smoke test, or to re-run just the states that failed last time.
+  const onlyCodes = process.env.ONLY_STATES?.split(",").map((s) => s.trim().toUpperCase());
+  const statesToRun = onlyCodes
+    ? US_STATES.filter((s) => onlyCodes.includes(s.code))
+    : US_STATES;
+
+  for (const [i, state] of statesToRun.entries()) {
     const stateIso = `US-${state.code}`;
-    console.log(`[${i + 1}/${US_STATES.length}] Querying ${state.name} (${stateIso})...`);
+    console.log(`[${i + 1}/${statesToRun.length}] Querying ${state.name} (${stateIso})...`);
 
     try {
       const elements = await queryOverpass(buildQuery(stateIso));
