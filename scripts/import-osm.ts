@@ -70,7 +70,14 @@ async function queryOverpass(query: string): Promise<OverpassElement[]> {
       try {
         const res = await fetch(endpoint, {
           method: "POST",
-          headers: { "Content-Type": "text/plain" },
+          headers: {
+            "Content-Type": "text/plain",
+            Accept: "*/*",
+            // Overpass's usage policy asks scripted clients to identify
+            // themselves; some mirrors reject requests with no User-Agent
+            // (or Node's generic default one) with a 406.
+            "User-Agent": "plant-nursery-directory-import/1.0",
+          },
           body: query,
         });
         if (res.status === 429 || res.status === 504) {
