@@ -26,6 +26,7 @@ enum PlanTier {
 }
 
 enum NurseryStatus {
+  DRAFT // being worked on, not submitted for review or shown publicly
   PENDING // awaiting moderation, not shown publicly
   PUBLISHED // live in the directory
   REJECTED // moderated out
@@ -38,12 +39,23 @@ enum DataSource {
   OPENSTREETMAP
   MANUAL_SUBMISSION
   ADMIN
+  BULK_IMPORT // CSV import via /admin/import (state ag departments, trade associations, etc.)
+}
+
+enum BusinessType {
+  WHOLESALE
+  RETAIL
+  ONLINE_ONLY
+  BROKER
 }
 
 model Nursery {
-  id   String @id @default(cuid())
-  slug String @unique
-  name String
+  id        String  @id @default(cuid())
+  slug      String  @unique
+  name      String
+  // Legal/registered name from a license record, when it differs from the
+  // public-facing display name above.
+  legalName String?
 
   // Address / location
   addressLine1 String
@@ -55,26 +67,40 @@ model Nursery {
   longitude    Float
 
   // Contact
-  phone   String?
-  website String?
-  email   String?
+  phone        String?
+  website      String?
+  email        String?
+  // Admin-only; never rendered on the public page. Used to reach a business
+  // before they've claimed their listing, and later for lead notifications.
+  contactEmail String?
+  // Flexible so a new platform doesn't need a schema change, e.g.
+  // { "instagram": "https://instagram.com/...", "facebook": "..." }
+  socialLinks  Json?
 
   // Content
-  description String?
-  hours       Json? // structured opening hours, e.g. { "mon": "9:00-17:00", ... }
-  photos      NurseryPhoto[]
+  description  String?
+  businessType BusinessType?
+  hours        Json? // structured opening hours, e.g. { "mon": "9:00-17:00", ... }
+  photos       NurseryPhoto[]
 
   specialties NurserySpecialty[]
 
+  // State nursery dealer licensing (from state Dept. of Agriculture records)
+  licenseNumber    String?
+  licenseStatus    String? // free text: terminology varies by state
+  licenseExpiresAt DateTime?
+
   // Provenance / moderation
-  status     NurseryStatus @default(PENDING)
-  source     DataSource    @default(MANUAL_SUBMISSION)
-  externalId String? // e.g. Google Places place_id, for de-duplication on import
-  verifiedAt DateTime? // last time an owner or admin verified details are current
+  status      NurseryStatus @default(PENDING)
+  source      DataSource    @default(MANUAL_SUBMISSION)
+  externalId  String? // e.g. Google Places place_id, for de-duplication on import
+  verifiedAt  DateTime? // last time an owner or admin verified details are current
+  sourceNotes String? // admin-only provenance notes, e.g. "WSDA list, Sept 2026"
 
   // Monetization
-  planTier       PlanTier  @default(FREE)
-  sponsoredUntil DateTime? // featured/premium placement expires at this date
+  planTier         PlanTier  @default(FREE)
+  sponsoredUntil   DateTime? // featured/premium placement expires at this date
+  inventorySyncUrl String? // premium feature: live CSV/Google Sheet feed (not yet wired up)
 
   // Ownership / claiming
   ownerId String?

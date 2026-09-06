@@ -17,6 +17,27 @@ export function Footer() {
           </a>
           .
         </p>
+        <p className="mt-2">
+          Some listings sourced from{" "}
+          <a
+            href="https://www.openstreetmap.org/copyright"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-primary"
+          >
+            © OpenStreetMap contributors
+          </a>
+          , available under the{" "}
+          <a
+            href="https://opendatacommons.org/licenses/odbl/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-primary"
+          >
+            Open Database License
+          </a>
+          .
+        </p>
       </div>
     </footer>
   );

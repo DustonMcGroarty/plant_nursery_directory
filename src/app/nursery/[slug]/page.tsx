@@ -35,6 +35,11 @@ export default async function NurseryPage({
     nursery.addressLine2 ? `, ${nursery.addressLine2}` : ""
   }, ${nursery.city}, ${nursery.state} ${nursery.postalCode}`;
 
+  const socialLinks =
+    nursery.socialLinks && typeof nursery.socialLinks === "object" && !Array.isArray(nursery.socialLinks)
+      ? Object.values(nursery.socialLinks as Record<string, string>)
+      : [];
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "GardenStore",
@@ -55,6 +60,7 @@ export default async function NurseryPage({
     },
     telephone: nursery.phone ?? undefined,
     url: nursery.website ?? undefined,
+    sameAs: socialLinks.length > 0 ? socialLinks : undefined,
   };
 
   return (
@@ -137,6 +143,31 @@ export default async function NurseryPage({
           </div>
         )}
       </dl>
+
+      {socialLinks.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-3 text-sm">
+          {socialLinks.map((url) => {
+            let label = url;
+            try {
+              label = new URL(url).hostname.replace(/^www\./, "");
+            } catch {
+              // Not a full URL (e.g. admin typed a bare handle) - fall
+              // back to showing the raw value instead of crashing.
+            }
+            return (
+              <a
+                key={url}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                {label}
+              </a>
+            );
+          })}
+        </div>
+      )}
 
       <div className="mt-6 rounded-lg border border-dashed border-border p-4 text-sm text-muted">
         Is this your nursery?{" "}

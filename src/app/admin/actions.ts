@@ -7,10 +7,14 @@ import { prisma } from "@/lib/prisma";
 
 const ADMIN_COOKIE = "admin_secret";
 
-export async function loginAdmin(formData: FormData) {
+export interface LoginState {
+  error?: string;
+}
+
+export async function loginAdmin(_prevState: LoginState, formData: FormData): Promise<LoginState> {
   const secret = formData.get("secret")?.toString() ?? "";
   if (!process.env.ADMIN_SECRET || secret !== process.env.ADMIN_SECRET) {
-    redirect("/admin?error=1");
+    return { error: "Incorrect secret." };
   }
   const store = await cookies();
   store.set(ADMIN_COOKIE, secret, {
@@ -107,7 +111,7 @@ export async function approveClaim(claimId: string) {
     data: { status: "APPROVED", reviewedAt: new Date() },
   });
 
-  redirect("/admin");
+  redirect("/admin/submissions");
 }
 
 export async function rejectClaim(claimId: string) {
@@ -115,7 +119,7 @@ export async function rejectClaim(claimId: string) {
     where: { id: claimId },
     data: { status: "REJECTED", reviewedAt: new Date() },
   });
-  redirect("/admin");
+  redirect("/admin/submissions");
 }
 
 export async function logoutAdmin() {
