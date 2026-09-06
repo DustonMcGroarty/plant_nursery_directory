@@ -131,7 +131,11 @@ export async function upsertElement(el: OverpassElement, fallbackState: string) 
 
   const city = tags["addr:city"];
   if (!city) return "skipped_no_city";
-  const state = (tags["addr:state"] ?? fallbackState).toUpperCase();
+  // Each Overpass query is already scoped to one state's area, so that's
+  // more trustworthy than the free-text addr:state tag, which sometimes
+  // has a full state name ("Oregon") or other non-standard value instead
+  // of the 2-letter code the rest of the app expects.
+  const state = fallbackState.toUpperCase();
 
   const externalId = `${el.type}/${el.id}`;
   const existing = await prisma.nursery.findUnique({
