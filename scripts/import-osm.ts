@@ -81,7 +81,10 @@ async function queryOverpass(query: string): Promise<OverpassElement[]> {
           body: query,
           // Without this, a mirror that hangs instead of erroring can
           // stall the whole run far longer than the retry backoff implies.
-          signal: AbortSignal.timeout(30000),
+          // Must exceed the query's own [timeout:180] above, or large
+          // states (California, Texas, ...) get cut off client-side
+          // before the server even finishes computing a real answer.
+          signal: AbortSignal.timeout(200_000),
         });
         if (res.status === 429 || res.status === 504) {
           await sleep(RETRY_BACKOFF_MS[attempt]);
