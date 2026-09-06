@@ -176,8 +176,15 @@ async function uniqueSlug(base: string): Promise<string> {
 
 export async function upsertElement(el: OverpassElement, fallbackState: string) {
   const tags = el.tags ?? {};
-  const name = tags.name;
-  if (!name) return "skipped_no_name";
+  // Some features carry a real identity in a tag other than `name` (the
+  // mapper set `brand`/`operator`/etc. but never got around to `name`
+  // itself). Check those before giving up — this is real data OSM already
+  // has, not a guess.
+  const name =
+    tags.name ?? tags.brand ?? tags.operator ?? tags.official_name ?? tags.alt_name ?? tags.short_name;
+  if (!name) {
+    return tags.shop ? "skipped_no_name_shop" : "skipped_no_name_landuse";
+  }
 
   const lat = el.type === "node" ? el.lat : el.center?.lat;
   const lng = el.type === "node" ? el.lon : el.center?.lon;
@@ -240,7 +247,8 @@ async function main() {
     created: 0,
     created_enriched_city: 0,
     duplicate: 0,
-    skipped_no_name: 0,
+    skipped_no_name_shop: 0,
+    skipped_no_name_landuse: 0,
     skipped_no_location: 0,
     skipped_no_city: 0,
   };
@@ -281,9 +289,14 @@ async function main() {
       `Note: ${stats.skipped_no_city} nurseries were skipped because OSM had no addr:city tag and reverse geocoding couldn't find one either (usually very rural areas). These can be added manually via the /submit form.`,
     );
   }
-  if (stats.skipped_no_name > 0) {
+  if (stats.skipped_no_name_shop > 0) {
     console.log(
-      `Note: ${stats.skipped_no_name} OSM features were skipped because they had no name at all (often unnamed plant-nursery land-use polygons rather than named businesses) - not recoverable from this data source.`,
+      `Note: ${stats.skipped_no_name_shop} retail garden center locations were skipped with no name in any tag (name/brand/operator/etc). These are real, mapped businesses - just anonymous ones. Worth a follow-up pass via Google Places or Yelp if you want to chase them.`,
+    );
+  }
+  if (stats.skipped_no_name_landuse > 0) {
+    console.log(
+      `Note: ${stats.skipped_no_name_landuse} plant-nursery land-use polygons were skipped with no name in any tag - these are mostly unnamed growing fields, not standalone businesses, and aren't realistically recoverable from OSM.`,
     );
   }
 }
