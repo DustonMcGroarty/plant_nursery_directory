@@ -11,9 +11,10 @@ export interface AdminListingFilters {
 
 const PAGE_SIZE = 50;
 
-export async function listNurseriesForAdmin(filters: AdminListingFilters) {
-  const page = Math.max(1, filters.page ?? 1);
-
+// Shared with bulkUpdateStatusByFilter (actions.ts) so "apply to all N
+// matching" always affects exactly the set the admin is currently looking
+// at — not a second, potentially-drifted copy of this filter logic.
+export function buildAdminListingWhere(filters: AdminListingFilters): Prisma.NurseryWhereInput {
   const where: Prisma.NurseryWhereInput = {};
   if (filters.status) where.status = filters.status as NurseryStatus;
   if (filters.state) where.state = filters.state.toUpperCase();
@@ -25,6 +26,13 @@ export async function listNurseriesForAdmin(filters: AdminListingFilters) {
       { legalName: { contains: filters.q, mode: "insensitive" } },
     ];
   }
+  return where;
+}
+
+export async function listNurseriesForAdmin(filters: AdminListingFilters) {
+  const page = Math.max(1, filters.page ?? 1);
+
+  const where = buildAdminListingWhere(filters);
 
   const [items, total] = await Promise.all([
     prisma.nursery.findMany({

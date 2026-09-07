@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import slugify from "slugify";
 import { prisma } from "@/lib/prisma";
 import type { BusinessType, DataSource, NurseryStatus } from "@/generated/prisma/client";
+import { buildAdminListingWhere, type AdminListingFilters } from "@/app/admin/listings/queries";
 
 export async function bulkUpdateStatus(formData: FormData) {
   const ids = formData.getAll("ids").map((v) => v.toString());
@@ -13,6 +14,24 @@ export async function bulkUpdateStatus(formData: FormData) {
   if (ids.length > 0 && newStatus) {
     await prisma.nursery.updateMany({
       where: { id: { in: ids } },
+      data: { status: newStatus as NurseryStatus },
+    });
+  }
+
+  redirect(returnTo);
+}
+
+// Applies a status change to every listing matching the admin's current
+// filters, not just the 50 on screen — a plain page of checkboxes doesn't
+// scale to a bulk import of thousands of rows (98 pages to click through
+// by hand otherwise).
+export async function bulkUpdateStatusByFilter(filters: AdminListingFilters, formData: FormData) {
+  const newStatus = formData.get("newStatus")?.toString();
+  const returnTo = formData.get("returnTo")?.toString() || "/admin/listings";
+
+  if (newStatus) {
+    await prisma.nursery.updateMany({
+      where: buildAdminListingWhere(filters),
       data: { status: newStatus as NurseryStatus },
     });
   }

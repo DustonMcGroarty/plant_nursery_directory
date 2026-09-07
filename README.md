@@ -36,12 +36,10 @@ United States, built with Next.js (App Router) and PostgreSQL/Prisma.
 ## Launching without touching a terminal
 
 If you're not going to run any commands yourself, this is the click-only
-path from "code on GitHub" to "live site with real nurseries in it." It
-takes maybe 20 minutes of clicking plus however long the data import runs
-in the background. Three free accounts are involved — Supabase (database),
-GitHub (already have this one — it's where the code lives), and Vercel
-(hosting) — you'll sign in to the second two with your GitHub account, no
-new password to make up.
+path from "code on GitHub" to "live site with real nurseries in it." Steps
+1–4 only matter the first time you set up a database from scratch; if you
+already have a Supabase project for this app with data in it, skip straight
+to step 5.
 
 1. **Create the database.** Go to [supabase.com](https://supabase.com),
    sign in, and click **New project**. Pick any name/region/password
@@ -60,21 +58,18 @@ new password to make up.
 4. **Create the database tables.** Still on GitHub, go to the **Actions**
    tab, click **Create/update database tables** in the left sidebar, then
    **Run workflow** → **Run workflow**. Wait for the green checkmark —
-   that means your new Supabase database now has the right tables. You
-   only need this again in the future if the app's data model changes.
-5. **Import real nurseries.** Still on the **Actions** tab, click
-   **Import nurseries from OpenStreetMap** in the left sidebar, then the
-   **Run workflow** button, then **Run workflow** again in the little
-   dropdown that appears (leave the two optional fields blank for a full
-   nationwide import, or put a couple of state codes like `TX,OR` in
-   "only_states" first, as a quick test). This runs in GitHub's cloud, not
-   your computer — you can close the tab and check back later. It can
-   take a while; refresh the page to see progress. Every imported nursery
-   starts **unclaimed and pending review**, so nothing goes public yet.
-6. **Deploy the site.** Go to [vercel.com/new](https://vercel.com/new),
+   that means your Supabase database now has the right tables. You only
+   need this again in the future if the app's data model changes.
+   **Import real nurseries** the same way, via the **Import nurseries
+   from OpenStreetMap** workflow — but check your `Nursery` table in
+   Supabase's Table Editor first (it shows a row count at the bottom).
+   If it's already got thousands of rows, this has already been done —
+   don't re-run it, it can take hours.
+5. **Deploy the site.** Go to [vercel.com/new](https://vercel.com/new),
    sign in with GitHub, and import this repository. When it asks for
    environment variables, add:
-   - `DATABASE_URL` and `DIRECT_URL` — same two values as step 3
+   - `DATABASE_URL` and `DIRECT_URL` — the same two connection strings
+     from your Supabase project (Settings → Database, same as step 2)
    - `ADMIN_SECRET` — make up a long random password; this is what
      protects `/admin` on the live site, so save it somewhere
    - `NEXT_PUBLIC_SITE_URL` — leave this blank for now; once you click
@@ -82,13 +77,17 @@ new password to make up.
      **Settings → Environment Variables**, add it then, and redeploy
      (**Deployments** tab → **⋯** → **Redeploy**) so it takes effect
    Click **Deploy**.
-7. **Review and publish.** Visit `your-site-url/admin`, log in with the
-   `ADMIN_SECRET` from step 6, open **Submissions**, and approve the
-   nurseries you want live (or bulk-select and publish from
-   **Listings**). The site is now real.
+6. **Review and publish.** Visit `your-site-url/admin`, log in with the
+   `ADMIN_SECRET` from step 5, and open **Listings**. Imported nurseries
+   start out with status **Pending** (filter the list to that status) —
+   select the ones you want live and use the bulk status dropdown to set
+   them to **Published**. (**Submissions** is a different queue — that's
+   only for claims/new listings people submit through the public
+   `/submit` form, not the bulk import.) The site is now real.
 
-From here, re-running step 5 later (e.g. after OSM gets more data in your
-area) is safe — it skips nurseries already imported.
+Re-running the import later (e.g. after OSM gets more data in your area)
+is safe — it skips nurseries already imported, so it only ever adds new
+ones.
 
 ## Tech stack
 

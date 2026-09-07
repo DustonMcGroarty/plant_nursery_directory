@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { listNurseriesForAdmin, getStatusCounts } from "@/app/admin/listings/queries";
-import { bulkUpdateStatus } from "@/app/admin/listings/actions";
+import { bulkUpdateStatus, bulkUpdateStatusByFilter } from "@/app/admin/listings/actions";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { SelectAllCheckbox } from "@/components/admin/SelectAllCheckbox";
+import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { US_STATES } from "@/lib/us-states";
 import { NurseryStatus, DataSource } from "@/generated/prisma/client";
 
@@ -145,6 +146,14 @@ export default async function ListingsPage({
           >
             Apply to selected
           </button>
+          <ConfirmSubmitButton
+            type="submit"
+            formAction={bulkUpdateStatusByFilter.bind(null, { status, state, source, q })}
+            confirmMessage={`This will change the status of all ${total.toLocaleString()} listing${total === 1 ? "" : "s"} matching your current filters — not just this page. This can't be undone in bulk. Continue?`}
+            className="ml-auto rounded-md border border-accent/40 px-3 py-1.5 text-accent hover:bg-accent/10"
+          >
+            Apply to all {total.toLocaleString()} matching filters
+          </ConfirmSubmitButton>
         </div>
 
         <div className="overflow-x-auto rounded-b-lg border border-border">
