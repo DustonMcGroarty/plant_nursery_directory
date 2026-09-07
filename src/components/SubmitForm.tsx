@@ -34,13 +34,15 @@ export function SubmitForm({ specialties, claimingNursery }: SubmitFormProps) {
       )}
 
       {state.error && (
-        <p className="rounded-md bg-accent/10 px-3 py-2 text-sm text-accent">
+        <p className="rounded-xl bg-accent/10 px-3.5 py-2.5 text-sm font-medium text-accent">
           {state.error}
         </p>
       )}
 
       <fieldset className="space-y-3">
-        <legend className="text-sm font-semibold">Your information</legend>
+        <legend className="text-[11px] font-semibold tracking-wide text-muted uppercase">
+          Your information
+        </legend>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field
             label="Your name"
@@ -57,7 +59,9 @@ export function SubmitForm({ specialties, claimingNursery }: SubmitFormProps) {
       </fieldset>
 
       <fieldset className="space-y-3">
-        <legend className="text-sm font-semibold">Nursery details</legend>
+        <legend className="text-[11px] font-semibold tracking-wide text-muted uppercase">
+          Nursery details
+        </legend>
         <Field
           label="Nursery name"
           name="proposedName"
@@ -87,7 +91,7 @@ export function SubmitForm({ specialties, claimingNursery }: SubmitFormProps) {
             <select
               name="proposedState"
               defaultValue={claimingNursery?.state ?? ""}
-              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm focus:border-primary focus:outline-none"
             >
               <option value="">Select…</option>
               {US_STATES.map((s) => (
@@ -128,7 +132,7 @@ export function SubmitForm({ specialties, claimingNursery }: SubmitFormProps) {
             name="proposedDescription"
             defaultValue={claimingNursery?.description ?? undefined}
             rows={4}
-            className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm"
+            className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm focus:border-primary focus:outline-none"
           />
         </div>
         <div>
@@ -137,9 +141,9 @@ export function SubmitForm({ specialties, claimingNursery }: SubmitFormProps) {
             {specialties.map((s) => (
               <label
                 key={s.slug}
-                className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs"
+                className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium has-checked:border-primary has-checked:bg-primary/10 has-checked:text-primary-dark"
               >
-                <input type="checkbox" name="proposedSpecialties" value={s.slug} />
+                <input type="checkbox" name="proposedSpecialties" value={s.slug} className="accent-[var(--primary)]" />
                 {s.name}
               </label>
             ))}
@@ -154,14 +158,14 @@ export function SubmitForm({ specialties, claimingNursery }: SubmitFormProps) {
         <textarea
           name="note"
           rows={3}
-          className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm"
+          className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm focus:border-primary focus:outline-none"
         />
       </div>
 
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-contrast hover:bg-primary-dark disabled:opacity-60"
+        className="w-full rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-contrast hover:opacity-90 disabled:opacity-60"
       >
         {pending ? "Submitting…" : claimingNursery ? "Submit claim" : "Submit nursery"}
       </button>
@@ -192,7 +196,7 @@ function Field({
         type={type}
         name={name}
         defaultValue={defaultValue}
-        className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm"
+        className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm focus:border-primary focus:outline-none"
       />
       {error && <p className="mt-1 text-xs text-accent">{error}</p>}
     </div>

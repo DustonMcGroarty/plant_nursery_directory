@@ -23,9 +23,9 @@ export function AdminNav() {
               <Link
                 key={tab.href}
                 href={tab.href}
-                className={`border-b-2 px-3 py-3 text-sm font-medium ${
+                className={`border-b-2 px-3 py-3.5 text-sm font-semibold ${
                   active
-                    ? "border-primary text-primary-dark"
+                    ? "border-primary text-foreground"
                     : "border-transparent text-muted hover:text-foreground"
                 }`}
               >
@@ -35,7 +35,7 @@ export function AdminNav() {
           })}
         </nav>
         <form action={logoutAdmin}>
-          <button type="submit" className="text-sm text-muted underline">
+          <button type="submit" className="text-sm font-medium text-muted hover:text-foreground">
             Log out
           </button>
         </form>
