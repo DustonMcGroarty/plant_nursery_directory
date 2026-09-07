@@ -31,9 +31,14 @@ export default async function NurseryPage({
     notFound();
   }
 
-  const fullAddress = `${nursery.addressLine1}${
-    nursery.addressLine2 ? `, ${nursery.addressLine2}` : ""
-  }, ${nursery.city}, ${nursery.state} ${nursery.postalCode}`;
+  const fullAddress = [
+    nursery.addressLine1,
+    nursery.addressLine2,
+    nursery.city,
+    `${nursery.state} ${nursery.postalCode}`.trim(),
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   const socialLinks =
     nursery.socialLinks && typeof nursery.socialLinks === "object" && !Array.isArray(nursery.socialLinks)
@@ -47,10 +52,10 @@ export default async function NurseryPage({
     description: nursery.description ?? undefined,
     address: {
       "@type": "PostalAddress",
-      streetAddress: nursery.addressLine1,
+      streetAddress: nursery.addressLine1 || undefined,
       addressLocality: nursery.city,
       addressRegion: nursery.state,
-      postalCode: nursery.postalCode,
+      postalCode: nursery.postalCode || undefined,
       addressCountry: "US",
     },
     geo: {
