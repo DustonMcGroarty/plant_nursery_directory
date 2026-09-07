@@ -58,12 +58,14 @@ export default async function SearchPage({
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
-      <h1 className="text-2xl font-bold">Browse Plant Nurseries</h1>
+      <h1 className="text-[28px] font-extrabold tracking-tight text-foreground">
+        Browse Plant Nurseries
+      </h1>
       <p className="mt-1 text-muted">
         {total} {total === 1 ? "nursery" : "nurseries"} found
       </p>
 
-      <div className="mt-6 rounded-lg border border-border bg-surface p-4">
+      <div className="mt-6 rounded-[20px] bg-surface p-5 shadow-[0_2px_8px_rgba(10,20,18,0.04),0_16px_40px_rgba(10,20,18,0.06)]">
         <SearchForm
           specialties={allSpecialties}
           initial={{

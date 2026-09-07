@@ -83,12 +83,12 @@ export function SearchForm({ specialties, initial }: SearchFormProps) {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Nursery name, city, or keyword"
-          className="flex-1 rounded-md border border-border bg-surface px-3 py-2 text-sm"
+          className="flex-1 rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm focus:border-primary focus:outline-none"
         />
         <select
           value={state}
           onChange={(e) => setState(e.target.value)}
-          className="rounded-md border border-border bg-surface px-3 py-2 text-sm sm:w-48"
+          className="rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm sm:w-48"
         >
           <option value="">All states</option>
           {US_STATES.map((s) => (
@@ -99,7 +99,7 @@ export function SearchForm({ specialties, initial }: SearchFormProps) {
         </select>
         <button
           type="submit"
-          className="rounded-md bg-primary px-5 py-2 text-sm font-semibold text-primary-contrast hover:bg-primary-dark"
+          className="rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-contrast hover:opacity-90"
         >
           Search
         </button>
@@ -110,7 +110,7 @@ export function SearchForm({ specialties, initial }: SearchFormProps) {
           type="button"
           onClick={useMyLocation}
           disabled={locating}
-          className="rounded-md border border-border px-3 py-1.5 hover:bg-primary/10"
+          className="rounded-xl border border-border px-3.5 py-2 font-medium hover:bg-primary/10"
         >
           {locating ? "Locating…" : coords ? "📍 Location set" : "📍 Use my location"}
         </button>
@@ -121,7 +121,7 @@ export function SearchForm({ specialties, initial }: SearchFormProps) {
               <select
                 value={radius}
                 onChange={(e) => setRadius(Number(e.target.value))}
-                className="rounded-md border border-border bg-surface px-2 py-1"
+                className="rounded-lg border border-border bg-surface px-2 py-1"
               >
                 {[10, 25, 50, 100, 250].map((r) => (
                   <option key={r} value={r}>
@@ -150,7 +150,7 @@ export function SearchForm({ specialties, initial }: SearchFormProps) {
               type="button"
               key={s.slug}
               onClick={() => toggleSpecialty(s.slug)}
-              className={`rounded-full border px-3 py-1 text-xs font-medium ${
+              className={`rounded-full border px-3 py-1 text-xs font-semibold ${
                 active
                   ? "border-primary bg-primary text-primary-contrast"
                   : "border-border bg-surface text-muted hover:border-primary"

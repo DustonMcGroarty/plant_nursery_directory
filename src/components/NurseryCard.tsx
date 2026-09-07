@@ -6,10 +6,10 @@ export function NurseryCard({ nursery }: { nursery: NurserySearchResultItem }) {
   return (
     <Link
       href={`/nursery/${nursery.slug}`}
-      className="block rounded-lg border border-border bg-surface p-4 transition-shadow hover:shadow-md"
+      className="block rounded-[20px] bg-surface p-5 shadow-[0_2px_8px_rgba(10,20,18,0.04),0_16px_40px_rgba(10,20,18,0.06)] transition-shadow hover:shadow-[0_2px_8px_rgba(10,20,18,0.06),0_20px_48px_rgba(10,20,18,0.1)]"
     >
       <div className="flex items-start justify-between gap-2">
-        <h3 className="font-semibold text-foreground">{nursery.name}</h3>
+        <h3 className="font-bold text-foreground">{nursery.name}</h3>
         <PlanBadge planTier={nursery.planTier} />
       </div>
       <p className="mt-1 text-sm text-muted">
@@ -19,11 +19,11 @@ export function NurseryCard({ nursery }: { nursery: NurserySearchResultItem }) {
         )}
       </p>
       {nursery.specialtyNames.length > 0 && (
-        <p className="mt-2 flex flex-wrap gap-1">
+        <p className="mt-3 flex flex-wrap gap-1.5">
           {nursery.specialtyNames.slice(0, 3).map((name) => (
             <span
               key={name}
-              className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary-dark"
+              className="rounded-[7px] bg-primary/10 px-2.5 py-1 text-[11.5px] font-semibold text-primary-dark"
             >
               {name}
             </span>

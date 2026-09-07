@@ -1,14 +1,14 @@
 export function PlanBadge({ planTier }: { planTier: string }) {
   if (planTier === "PREMIUM") {
     return (
-      <span className="inline-flex items-center rounded-full bg-accent/15 px-2 py-0.5 text-xs font-semibold text-accent">
+      <span className="inline-flex items-center rounded-[7px] bg-accent/15 px-2.5 py-1 text-[11.5px] font-semibold text-accent">
         ★ Premium
       </span>
     );
   }
   if (planTier === "FEATURED") {
     return (
-      <span className="inline-flex items-center rounded-full bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary-dark">
+      <span className="inline-flex items-center rounded-[7px] bg-primary-dark px-2.5 py-1 text-[11.5px] font-semibold text-white">
         Featured
       </span>
     );

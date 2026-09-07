@@ -1,7 +1,7 @@
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-surface">
-      <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-muted sm:px-6">
+    <footer className="border-t border-border bg-background">
+      <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-muted sm:px-6">
         <p>
           Find Plant Nurseries is a community-built directory of plant
           nurseries and garden centers across the United States.
