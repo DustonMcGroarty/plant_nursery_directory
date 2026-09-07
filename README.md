@@ -7,8 +7,15 @@ United States, built with Next.js (App Router) and PostgreSQL/Prisma.
 
 - **Search & filter** by keyword, state, specialty, and "near me" radius
   (browser geolocation + haversine distance, no geocoding API required).
-- **Nursery profile pages** with address, phone, website, specialties, and
-  `GardenStore` JSON-LD structured data for SEO.
+- **Nursery profile pages** with address, phone, website, specialties,
+  hours, license status, a photo gallery, an interactive map (Leaflet +
+  OpenStreetMap tiles, no API key), read-only reviews with a star-rating
+  summary, and `GardenStore` JSON-LD structured data for SEO.
+- **Map view** on `/search` — a List/Map toggle plots every result on the
+  same free OSM tiles as the profile page map.
+- **Dynamic favicon + Open Graph images** (`next/og`) — a branded tab icon
+  and a per-nursery social share image generated at request time, no
+  static image assets to keep in sync.
 - **Add / claim a listing** — a public form creates a moderation request;
   nothing goes live until approved. Mirrors the "Google creates the
   listing, the owner claims it" model: every imported nursery starts
@@ -57,6 +64,24 @@ United States, built with Next.js (App Router) and PostgreSQL/Prisma.
    ```bash
    npm run dev
    ```
+
+## Showcase listing
+
+```bash
+npm run db:seed-showcase
+```
+
+`scripts/seed-showcase-listing.ts` fully populates **one** existing seed
+nursery (`evergreen-nursery-orlando-fl`) with every field the schema and UI
+support — full description, hours, an active license, a photo gallery,
+several reviews, a claimed owner, and the `PREMIUM` plan — so there's a
+finished example to point people at before real data or real owner
+sign-ups exist. It also ranks above other listings on the homepage (see
+`getFeaturedNurseries`, which sorts a verified listing before an
+unverified one of the same plan tier). Everything else in the directory
+is untouched; this is a single demo row, not a bulk data change. The
+photos it uses are the illustrations in `public/demo/` — swap in real
+photography whenever you have it.
 
 ## Getting real, nationwide nursery data
 
@@ -174,32 +199,47 @@ database, before the site is public — so nobody sees placeholder data.
    skip review and publish everything immediately).
 6. **Deploy to Vercel**, pointing it at the same `DATABASE_URL` /
    `DIRECT_URL` / `ADMIN_SECRET` values as env vars in the Vercel project
-   settings. The site now launches with real, already-reviewed data.
+   settings, plus `NEXT_PUBLIC_SITE_URL` set to your real domain (see
+   `.env.example` — without it, the generated Open Graph/social share
+   images resolve to `localhost` and won't load when a link is shared).
+   The site now launches with real, already-reviewed data.
 
 ## Project structure
 
 ```
-prisma/schema.prisma            Data model (Nursery, Specialty, ClaimRequest, User, Review, ...)
-prisma/seed.ts                  Synthetic sample data for local dev
-scripts/import-osm.ts           OpenStreetMap import pipeline (recommended)
-scripts/import-places.ts        Google Places import pipeline
-scripts/parse-wa-nursery-pdf.ts Washington state license PDF -> CSV (bulk-import pilot)
-src/lib/csv-import.ts           CSV template definition + parsing/validation, shared by
-                                 the parser scripts and /admin/import
-src/app/                        Public routes: /, /search, /nursery/[slug], /submit
-src/app/admin/                  Admin backend: listings/, submissions/, import/
-src/lib/nursery-queries.ts      Public search/filter/geo query logic
-src/lib/geo.ts                  Haversine distance helper
+prisma/schema.prisma             Data model (Nursery, Specialty, ClaimRequest, User, Review, ...)
+prisma/seed.ts                   Synthetic sample data for local dev
+scripts/import-osm.ts            OpenStreetMap import pipeline (recommended)
+scripts/import-places.ts         Google Places import pipeline
+scripts/parse-wa-nursery-pdf.ts  Washington state license PDF -> CSV (bulk-import pilot)
+scripts/seed-showcase-listing.ts Fully populates one demo listing — see "Showcase listing" above
+src/lib/csv-import.ts            CSV template definition + parsing/validation, shared by
+                                  the parser scripts and /admin/import
+src/app/                         Public routes: /, /search, /nursery/[slug], /submit
+src/app/icon.tsx                 Dynamic favicon (next/og)
+src/app/opengraph-image.tsx      Site-wide social share image (next/og)
+src/app/nursery/[slug]/opengraph-image.tsx  Per-nursery social share image
+src/app/admin/                   Admin backend: listings/, submissions/, import/
+src/lib/nursery-queries.ts       Public search/filter/geo query logic
+src/lib/geo.ts                   Haversine distance helper
+src/components/NurseryMap.tsx    Leaflet map (single-location or multi-pin), self-hosted
+src/components/SearchResultsView.tsx  List/Map toggle for /search
+public/demo/                     Illustrated placeholder photos for the showcase listing
 ```
 
 ## Roadmap ideas
 
-- Photos (schema already supports `NurseryPhoto`; needs an upload flow).
-- Reviews (schema already supports `Review`; needs UI).
-- Map view of search results.
+- Photo uploads for owners (schema + display already exist —
+  `NurseryPhoto`, the profile-page gallery, admin URL management in
+  `/admin/listings/[id]`; what's missing is a self-serve upload flow tied
+  to a real owner login, once auth exists).
+- Review submissions (schema + display already exist — `Review`, the
+  profile-page reviews section; what's missing is a public write/submit
+  form, presumably with moderation like `/submit`).
 - Payment integration for `FEATURED`/`PREMIUM` plan upgrades.
 - Owner accounts / auth (schema has `User.role: OWNER`, not yet wired to
-  real authentication).
+  real authentication — currently the only way to set `ownerId` is via
+  `/admin` or the showcase script).
 - Live inventory sync (schema has `Nursery.inventorySyncUrl`; needs a
   scheduled job that actually reads a linked feed).
 - A `Scheduled` listing status that flips to `Published` at a set time
