@@ -120,18 +120,27 @@ export default async function Home() {
 
           {/* Right: gradient hero device */}
           <div className="relative hidden h-[500px] overflow-hidden rounded-3xl bg-gradient-to-br from-primary-dark via-primary to-[#86e6b0] lg:block">
-            <svg
-              className="absolute -top-12 -right-12 opacity-[0.18]"
-              width="260"
-              height="260"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#ffffff"
-              strokeWidth="0.6"
-            >
-              <path d="M12 21c0-5 3-8 8-8 0 5-3 8-8 8Z" />
-              <path d="M12 21c0-6-3.5-10-8-10 0 5.5 3 10 8 10Z" />
-            </svg>
+            {spotlight?.photos[0] ? (
+              /* eslint-disable-next-line @next/next/no-img-element -- external/local photo URL of unknown dimensions */
+              <img
+                src={spotlight.photos[0].url}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover opacity-25"
+              />
+            ) : (
+              <svg
+                className="absolute -top-12 -right-12 opacity-[0.18]"
+                width="260"
+                height="260"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth="0.6"
+              >
+                <path d="M12 21c0-5 3-8 8-8 0 5-3 8-8 8Z" />
+                <path d="M12 21c0-6-3.5-10-8-10 0 5.5 3 10 8 10Z" />
+              </svg>
+            )}
 
             <div className="absolute top-7 right-7 left-7">
               <div className="text-[22px] leading-tight font-bold tracking-tight text-white">
@@ -142,7 +151,18 @@ export default async function Home() {
             </div>
 
             {spotlight && (
-              <div className="absolute right-7 bottom-7 left-7 rounded-[20px] bg-white p-5 shadow-[0_24px_56px_rgba(0,0,0,0.3)]">
+              <div className="absolute right-7 bottom-7 left-7 overflow-hidden rounded-[20px] bg-white shadow-[0_24px_56px_rgba(0,0,0,0.3)]">
+                {spotlight.photos[0] && (
+                  <div className="aspect-16/9 w-full overflow-hidden bg-[#eef1ef]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={spotlight.photos[0].url}
+                      alt={spotlight.photos[0].altText ?? spotlight.name}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="p-5">
                 <div className="mb-4 flex items-center justify-between gap-2">
                   <div className="text-[15.5px] font-bold text-foreground">
                     {spotlight.name}
@@ -185,6 +205,7 @@ export default async function Home() {
                       Listing →
                     </Link>
                   </div>
+                </div>
                 </div>
               </div>
             )}
@@ -234,7 +255,13 @@ export default async function Home() {
                   i % 2 === 1 ? "bg-[#fbfcfb]" : "bg-surface"
                 }`}
               >
-                <div className="text-[14px] font-bold text-foreground">
+                <div className="flex items-center gap-2.5 text-[14px] font-bold text-foreground">
+                  {n.photos[0] && (
+                    <span className="h-7 w-7 shrink-0 overflow-hidden rounded-[6px] bg-[#eef1ef]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={n.photos[0].url} alt="" className="h-full w-full object-cover" />
+                    </span>
+                  )}
                   {n.name}
                 </div>
                 <div className="text-[13.5px] text-muted">

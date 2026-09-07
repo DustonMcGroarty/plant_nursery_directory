@@ -3,8 +3,8 @@ import Link from "next/link";
 export function Header() {
   return (
     <header className="bg-primary-dark">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3.5 sm:px-6">
-        <Link href="/" className="flex items-center gap-2.5">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3.5 sm:gap-4 sm:px-6">
+        <Link href="/" className="flex min-w-0 items-center gap-2.5">
           <span
             aria-hidden="true"
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white"
@@ -27,17 +27,17 @@ export function Header() {
               />
             </svg>
           </span>
-          <span className="text-[17px] font-bold tracking-tight text-white">
+          <span className="truncate text-[15px] font-bold tracking-tight text-white sm:text-[17px]">
             Find Plant Nurseries
           </span>
         </Link>
-        <nav className="flex items-center gap-8 text-sm font-medium text-[#a9c9c0]">
-          <Link href="/search" className="hover:text-white">
+        <nav className="flex shrink-0 items-center gap-4 text-sm font-medium text-[#a9c9c0] sm:gap-8">
+          <Link href="/search" className="hidden hover:text-white sm:inline">
             Browse Nurseries
           </Link>
           <Link
             href="/submit"
-            className="rounded-lg bg-white px-[18px] py-2 font-bold text-primary-dark hover:bg-white/90"
+            className="rounded-lg bg-white px-3 py-1.5 text-[13px] font-bold whitespace-nowrap text-primary-dark hover:bg-white/90 sm:px-[18px] sm:py-2 sm:text-sm"
           >
             Add a Nursery
           </Link>

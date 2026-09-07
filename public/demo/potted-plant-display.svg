@@ -1,0 +1,87 @@
+<svg width="800" height="800" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f2f5f2"/>
+      <stop offset="100%" stop-color="#e2ede6"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg2)"/>
+
+  <!-- wooden shelving, 3 tiers -->
+  <g fill="#8a6f52">
+    <rect x="60" y="230" width="680" height="18" rx="3"/>
+    <rect x="60" y="430" width="680" height="18" rx="3"/>
+    <rect x="60" y="630" width="680" height="18" rx="3"/>
+  </g>
+  <g fill="#6e5540">
+    <rect x="70" y="248" width="14" height="400"/>
+    <rect x="716" y="248" width="14" height="400"/>
+  </g>
+
+  <!-- top shelf plants -->
+  <g transform="translate(150,230)">
+    <path d="M-26 0 L26 0 L18 48 L-18 48 Z" fill="#c17a4f"/>
+    <ellipse cx="0" cy="-16" rx="30" ry="28" fill="#0d9488"/>
+    <ellipse cx="-14" cy="-30" rx="18" ry="16" fill="#2fbfa4"/>
+    <ellipse cx="14" cy="-24" rx="16" ry="16" fill="#86e6b0"/>
+  </g>
+  <g transform="translate(320,230) scale(0.9)">
+    <path d="M-26 0 L26 0 L18 48 L-18 48 Z" fill="#b96a3e"/>
+    <rect x="-4" y="-54" width="8" height="54" fill="#4c7a5c"/>
+    <ellipse cx="0" cy="-56" rx="26" ry="18" fill="#0a5c4e"/>
+    <ellipse cx="-16" cy="-42" rx="14" ry="12" fill="#2fbfa4"/>
+    <ellipse cx="16" cy="-42" rx="14" ry="12" fill="#2fbfa4"/>
+  </g>
+  <g transform="translate(490,230) scale(1.05)">
+    <path d="M-26 0 L26 0 L18 48 L-18 48 Z" fill="#c88254"/>
+    <ellipse cx="-10" cy="-12" rx="22" ry="22" fill="#12b299"/>
+    <ellipse cx="14" cy="-20" rx="20" ry="20" fill="#86e6b0"/>
+  </g>
+  <g transform="translate(650,230) scale(0.85)">
+    <path d="M-26 0 L26 0 L18 48 L-18 48 Z" fill="#c17a4f"/>
+    <ellipse cx="0" cy="-18" rx="28" ry="32" fill="#0d9488"/>
+    <ellipse cx="0" cy="-34" rx="16" ry="20" fill="#6fd9b7"/>
+  </g>
+
+  <!-- middle shelf plants -->
+  <g transform="translate(180,430) scale(1.1)">
+    <path d="M-26 0 L26 0 L18 48 L-18 48 Z" fill="#b96a3e"/>
+    <ellipse cx="0" cy="-16" rx="30" ry="28" fill="#0a5c4e"/>
+    <ellipse cx="-16" cy="-30" rx="18" ry="16" fill="#0d9488"/>
+    <ellipse cx="16" cy="-26" rx="16" ry="16" fill="#2fbfa4"/>
+  </g>
+  <g transform="translate(370,430)">
+    <path d="M-26 0 L26 0 L18 48 L-18 48 Z" fill="#c17a4f"/>
+    <ellipse cx="0" cy="-14" rx="28" ry="26" fill="#12b299"/>
+    <ellipse cx="10" cy="-26" rx="16" ry="16" fill="#86e6b0"/>
+  </g>
+  <g transform="translate(560,430) scale(0.95)">
+    <path d="M-26 0 L26 0 L18 48 L-18 48 Z" fill="#c88254"/>
+    <rect x="-4" y="-54" width="8" height="54" fill="#4c7a5c"/>
+    <ellipse cx="0" cy="-56" rx="24" ry="18" fill="#0d9488"/>
+    <ellipse cx="-14" cy="-44" rx="12" ry="10" fill="#6fd9b7"/>
+    <ellipse cx="14" cy="-44" rx="12" ry="10" fill="#6fd9b7"/>
+  </g>
+
+  <!-- bottom shelf: larger statement plants -->
+  <g transform="translate(220,630) scale(1.3)">
+    <path d="M-28 0 L28 0 L20 50 L-20 50 Z" fill="#c17a4f"/>
+    <ellipse cx="0" cy="-20" rx="34" ry="32" fill="#0a5c4e"/>
+    <ellipse cx="-18" cy="-36" rx="20" ry="18" fill="#0d9488"/>
+    <ellipse cx="18" cy="-32" rx="18" ry="18" fill="#2fbfa4"/>
+  </g>
+  <g transform="translate(480,630) scale(1.3)">
+    <path d="M-28 0 L28 0 L20 50 L-20 50 Z" fill="#b96a3e"/>
+    <rect x="-5" y="-64" width="10" height="64" fill="#4c7a5c"/>
+    <ellipse cx="0" cy="-66" rx="30" ry="22" fill="#0d9488"/>
+    <ellipse cx="-20" cy="-50" rx="16" ry="14" fill="#6fd9b7"/>
+    <ellipse cx="20" cy="-50" rx="16" ry="14" fill="#6fd9b7"/>
+  </g>
+
+  <!-- soft shadows under shelves -->
+  <g fill="#0a2420" opacity="0.06">
+    <rect x="60" y="248" width="680" height="10"/>
+    <rect x="60" y="448" width="680" height="10"/>
+    <rect x="60" y="648" width="680" height="10"/>
+  </g>
+</svg>

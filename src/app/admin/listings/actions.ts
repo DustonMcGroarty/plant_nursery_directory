@@ -150,6 +150,22 @@ export async function createListing(formData: FormData) {
   redirect(`/admin/listings/${nursery.id}`);
 }
 
+export async function addNurseryPhoto(nurseryId: string, formData: FormData) {
+  const url = str(formData, "url");
+  if (!url) {
+    redirect(`/admin/listings/${nurseryId}`);
+  }
+  await prisma.nurseryPhoto.create({
+    data: { nurseryId, url, altText: str(formData, "altText") ?? null },
+  });
+  redirect(`/admin/listings/${nurseryId}?saved=1`);
+}
+
+export async function deleteNurseryPhoto(nurseryId: string, photoId: string) {
+  await prisma.nurseryPhoto.delete({ where: { id: photoId } });
+  redirect(`/admin/listings/${nurseryId}?saved=1`);
+}
+
 export async function updateListing(nurseryId: string, formData: FormData) {
   const f = readNurseryForm(formData);
   const slug = await uniqueSlug(`${f.name}-${f.city}-${f.state}`, nurseryId);

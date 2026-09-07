@@ -5,6 +5,8 @@ import Link from "next/link";
 import { getNurseryBySlug } from "@/lib/nursery-queries";
 import { PlanBadge } from "@/components/PlanBadge";
 import { LimitedInfoBadge, isThinListing } from "@/components/LimitedInfoBadge";
+import { StarRating } from "@/components/StarRating";
+import { NurseryMap } from "@/components/NurseryMap";
 import { stateName } from "@/lib/us-states";
 
 export const revalidate = 3600;
@@ -123,6 +125,11 @@ export default async function NurseryPage({
     nursery.licenseStatus,
   );
 
+  const averageRating =
+    nursery.reviews.length > 0
+      ? nursery.reviews.reduce((sum, r) => sum + r.rating, 0) / nursery.reviews.length
+      : 0;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "GardenStore",
@@ -167,6 +174,7 @@ export default async function NurseryPage({
     detailRows.push({
       label: "Email",
       value: <a href={`mailto:${nursery.email}`} className="hover:underline">{nursery.email}</a>,
+      wide: true,
     });
   }
   if (nursery.businessType) {
@@ -239,6 +247,12 @@ export default async function NurseryPage({
                   isThinListing(nursery) && <LimitedInfoBadge />
                 )}
                 <PlanBadge planTier={nursery.planTier} />
+                {nursery.reviews.length > 0 && (
+                  <span className="flex items-center gap-1.5 rounded-[7px] bg-white/15 px-2.5 py-1 text-[11px] font-semibold text-white">
+                    <StarRating rating={averageRating} size={11} />
+                    {averageRating.toFixed(1)} ({nursery.reviews.length})
+                  </span>
+                )}
               </div>
             </div>
 
@@ -277,6 +291,42 @@ export default async function NurseryPage({
             </p>
           )}
 
+          {nursery.photos.length > 0 && (
+            <div>
+              <div className="mb-2.5 text-[10.5px] font-semibold tracking-wide text-muted uppercase">
+                Photos
+              </div>
+              <div className="grid grid-cols-4 gap-2.5">
+                <div className="relative col-span-4 aspect-16/9 overflow-hidden rounded-[16px] bg-[#eef1ef] sm:col-span-3 sm:row-span-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- external/local photo URLs of unknown dimensions, next/image isn't worth the config overhead here */}
+                  <img
+                    src={nursery.photos[0].url}
+                    alt={nursery.photos[0].altText ?? nursery.name}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                {nursery.photos.slice(1, 4).map((photo, i) => (
+                  <div
+                    key={photo.id}
+                    className="relative col-span-2 aspect-square overflow-hidden rounded-[14px] bg-[#eef1ef] sm:col-span-1"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={photo.url}
+                      alt={photo.altText ?? `${nursery.name} photo ${i + 2}`}
+                      className="h-full w-full object-cover"
+                    />
+                    {i === 2 && nursery.photos.length > 4 && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-sm font-bold text-white">
+                        +{nursery.photos.length - 4} more
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {nursery.specialties.length > 0 && (
             <div>
               <div className="mb-2.5 text-[10.5px] font-semibold tracking-wide text-muted uppercase">
@@ -305,11 +355,74 @@ export default async function NurseryPage({
                   <div className="mb-1 text-[11px] font-medium text-muted">
                     {row.label}
                   </div>
-                  <div className="text-sm font-bold text-foreground">{row.value}</div>
+                  <div className="text-sm font-bold break-words text-foreground">{row.value}</div>
                 </div>
               ))}
             </div>
           </div>
+
+          {nursery.reviews.length > 0 && (
+            <div>
+              <div className="mb-3 flex items-center justify-between">
+                <div className="text-[10.5px] font-semibold tracking-wide text-muted uppercase">
+                  Reviews
+                </div>
+                <div className="flex items-center gap-1.5 text-[13px] font-bold text-foreground">
+                  <StarRating rating={averageRating} size={13} />
+                  {averageRating.toFixed(1)}
+                  <span className="font-medium text-muted">
+                    ({nursery.reviews.length})
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3">
+                {nursery.reviews.map((review) => (
+                  <div
+                    key={review.id}
+                    className="rounded-[16px] border border-border bg-surface p-4"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-bold text-foreground">
+                        {review.author?.name ?? "Anonymous"}
+                      </span>
+                      <span className="text-[11.5px] text-muted">
+                        {review.createdAt.toLocaleDateString(undefined, {
+                          year: "numeric",
+                          month: "short",
+                        })}
+                      </span>
+                    </div>
+                    <StarRating rating={review.rating} size={13} className="mt-1" />
+                    {review.body && (
+                      <p className="mt-2 text-[13.5px] leading-relaxed text-foreground/80">
+                        {review.body}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(nursery.latitude !== 0 || nursery.longitude !== 0) && (
+            <div>
+              <div className="mb-2.5 text-[10.5px] font-semibold tracking-wide text-muted uppercase">
+                Location
+              </div>
+              <NurseryMap
+                markers={[
+                  {
+                    id: nursery.id,
+                    slug: nursery.slug,
+                    name: nursery.name,
+                    lat: nursery.latitude,
+                    lng: nursery.longitude,
+                  },
+                ]}
+                height={260}
+              />
+            </div>
+          )}
 
           {(nursery.website || socialLinks.length > 0) && (
             <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { searchNurseries } from "@/lib/nursery-queries";
 import { getAllSpecialties } from "@/lib/nursery-queries";
 import { SearchForm } from "@/components/SearchForm";
-import { NurseryCard } from "@/components/NurseryCard";
+import { SearchResultsView } from "@/components/SearchResultsView";
 import { Pagination } from "@/components/Pagination";
 
 export const metadata: Metadata = {
@@ -88,11 +88,7 @@ export default async function SearchPage({
           .
         </p>
       ) : (
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((n) => (
-            <NurseryCard key={n.id} nursery={n} />
-          ))}
-        </div>
+        <SearchResultsView items={items} />
       )}
 
       <Pagination page={page} pageSize={pageSize} total={total} buildHref={buildHref} />

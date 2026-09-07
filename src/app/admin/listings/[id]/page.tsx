@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { updateListing } from "@/app/admin/listings/actions";
+import { updateListing, addNurseryPhoto, deleteNurseryPhoto } from "@/app/admin/listings/actions";
 import { AdminNurseryForm } from "@/components/admin/AdminNurseryForm";
 
 function parseParam(value: string | string[] | undefined): string | undefined {
@@ -18,7 +18,10 @@ export default async function EditListingPage({
   const [nursery, specialties] = await Promise.all([
     prisma.nursery.findUnique({
       where: { id },
-      include: { specialties: { include: { specialty: true } } },
+      include: {
+        specialties: { include: { specialty: true } },
+        photos: { orderBy: { createdAt: "asc" } },
+      },
     }),
     prisma.specialty.findMany({ orderBy: { name: "asc" } }),
   ]);
@@ -41,6 +44,54 @@ export default async function EditListingPage({
       {parseParam(sp.saved) && (
         <p className="mt-2 rounded-md bg-primary/10 px-3 py-2 text-sm text-primary-dark">Saved.</p>
       )}
+
+      <div className="mt-6 rounded-lg border border-border bg-surface p-4 sm:p-6">
+        <h2 className="text-sm font-semibold">Photos</h2>
+        {nursery.photos.length > 0 && (
+          <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {nursery.photos.map((photo) => (
+              <li key={photo.id} className="overflow-hidden rounded-md border border-border">
+                {/* eslint-disable-next-line @next/next/no-img-element -- external/local photo URL of unknown dimensions */}
+                <img src={photo.url} alt={photo.altText ?? ""} className="aspect-video w-full object-cover" />
+                <div className="flex items-center justify-between gap-2 p-2">
+                  <span className="truncate text-xs text-muted" title={photo.url}>
+                    {photo.altText || photo.url}
+                  </span>
+                  <form action={deleteNurseryPhoto.bind(null, nursery.id, photo.id)}>
+                    <button type="submit" className="text-xs text-accent hover:underline">
+                      Remove
+                    </button>
+                  </form>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        <form
+          action={addNurseryPhoto.bind(null, nursery.id)}
+          className="mt-3 flex flex-col gap-2 sm:flex-row"
+        >
+          <input
+            type="url"
+            name="url"
+            required
+            placeholder="Photo URL"
+            className="flex-1 rounded-md border border-border bg-surface px-3 py-2 text-sm"
+          />
+          <input
+            type="text"
+            name="altText"
+            placeholder="Alt text (optional)"
+            className="rounded-md border border-border bg-surface px-3 py-2 text-sm sm:w-56"
+          />
+          <button
+            type="submit"
+            className="rounded-md border border-border px-3 py-2 text-sm font-semibold hover:bg-primary/10"
+          >
+            Add photo
+          </button>
+        </form>
+      </div>
 
       <div className="mt-6 rounded-lg border border-border bg-surface p-4 sm:p-6">
         <AdminNurseryForm

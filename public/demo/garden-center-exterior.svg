@@ -1,0 +1,94 @@
+<svg width="800" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#bfe9dd"/>
+      <stop offset="100%" stop-color="#eafaf3"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky3)"/>
+
+  <!-- ground -->
+  <rect x="0" y="380" width="800" height="120" fill="#d9cdb4"/>
+
+  <!-- building -->
+  <rect x="120" y="180" width="560" height="210" fill="#f3efe4"/>
+  <path d="M100 180 L400 70 L700 180 Z" fill="#0a2420"/>
+  <rect x="100" y="172" width="600" height="14" fill="#0a2420"/>
+
+  <!-- sign -->
+  <rect x="300" y="130" width="200" height="46" rx="8" fill="#ffffff"/>
+  <text x="400" y="160" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#0a2420">GARDEN CENTER</text>
+
+  <!-- door -->
+  <rect x="370" y="290" width="60" height="100" fill="#0ea895"/>
+  <circle cx="420" cy="340" r="3" fill="#ffffff"/>
+
+  <!-- windows -->
+  <g fill="#bfe9dd" stroke="#0a2420" stroke-width="3">
+    <rect x="160" y="230" width="140" height="120" rx="4"/>
+    <rect x="500" y="230" width="140" height="120" rx="4"/>
+  </g>
+
+  <!-- awning -->
+  <path d="M140 220 L360 220 L340 190 L160 190 Z" fill="#0ea895"/>
+  <path d="M440 220 L660 220 L640 190 L460 190 Z" fill="#0ea895"/>
+
+  <!-- planters flanking entrance, and along the front -->
+  <g>
+    <g transform="translate(340,390)">
+      <path d="M-24 0 L24 0 L18 42 L-18 42 Z" fill="#c17a4f"/>
+      <ellipse cx="0" cy="-14" rx="28" ry="26" fill="#0d9488"/>
+      <ellipse cx="-12" cy="-26" rx="16" ry="16" fill="#2fbfa4"/>
+      <ellipse cx="12" cy="-22" rx="14" ry="14" fill="#86e6b0"/>
+    </g>
+    <g transform="translate(460,390)">
+      <path d="M-24 0 L24 0 L18 42 L-18 42 Z" fill="#c17a4f"/>
+      <ellipse cx="0" cy="-14" rx="28" ry="26" fill="#0d9488"/>
+      <ellipse cx="-12" cy="-26" rx="16" ry="16" fill="#2fbfa4"/>
+      <ellipse cx="12" cy="-22" rx="14" ry="14" fill="#86e6b0"/>
+    </g>
+  </g>
+
+  <g transform="translate(190,395) scale(0.9)">
+    <path d="M-22 0 L22 0 L16 40 L-16 40 Z" fill="#b96a3e"/>
+    <rect x="-4" y="-46" width="8" height="46" fill="#4c7a5c"/>
+    <ellipse cx="0" cy="-48" rx="24" ry="16" fill="#0a5c4e"/>
+  </g>
+  <g transform="translate(610,395) scale(0.9)">
+    <path d="M-22 0 L22 0 L16 40 L-16 40 Z" fill="#b96a3e"/>
+    <rect x="-4" y="-46" width="8" height="46" fill="#4c7a5c"/>
+    <ellipse cx="0" cy="-48" rx="24" ry="16" fill="#0a5c4e"/>
+  </g>
+
+  <!-- outdoor display racks with small pots -->
+  <g fill="#8a6f52">
+    <rect x="40" y="360" width="150" height="10" rx="3"/>
+    <rect x="610" y="360" width="150" height="10" rx="3"/>
+  </g>
+  <g>
+    <g transform="translate(60,360) scale(0.55)">
+      <path d="M-24 0 L24 0 L18 42 L-18 42 Z" fill="#c17a4f"/>
+      <ellipse cx="0" cy="-14" rx="26" ry="24" fill="#12b299"/>
+    </g>
+    <g transform="translate(110,360) scale(0.55)">
+      <path d="M-24 0 L24 0 L18 42 L-18 42 Z" fill="#c88254"/>
+      <ellipse cx="0" cy="-14" rx="26" ry="24" fill="#86e6b0"/>
+    </g>
+    <g transform="translate(160,360) scale(0.55)">
+      <path d="M-24 0 L24 0 L18 42 L-18 42 Z" fill="#c17a4f"/>
+      <ellipse cx="0" cy="-14" rx="26" ry="24" fill="#0d9488"/>
+    </g>
+    <g transform="translate(630,360) scale(0.55)">
+      <path d="M-24 0 L24 0 L18 42 L-18 42 Z" fill="#c17a4f"/>
+      <ellipse cx="0" cy="-14" rx="26" ry="24" fill="#12b299"/>
+    </g>
+    <g transform="translate(680,360) scale(0.55)">
+      <path d="M-24 0 L24 0 L18 42 L-18 42 Z" fill="#c88254"/>
+      <ellipse cx="0" cy="-14" rx="26" ry="24" fill="#86e6b0"/>
+    </g>
+    <g transform="translate(730,360) scale(0.55)">
+      <path d="M-24 0 L24 0 L18 42 L-18 42 Z" fill="#c17a4f"/>
+      <ellipse cx="0" cy="-14" rx="26" ry="24" fill="#0d9488"/>
+    </g>
+  </g>
+</svg>

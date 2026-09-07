@@ -23,9 +23,12 @@ export interface NurserySearchResultItem {
   name: string;
   city: string;
   state: string;
+  latitude: number;
+  longitude: number;
   planTier: string;
   distanceMiles: number | null;
   specialtyNames: string[];
+  photoUrl: string | null;
 }
 
 export async function searchNurseries(params: NurserySearchParams) {
@@ -76,6 +79,7 @@ export async function searchNurseries(params: NurserySearchParams) {
       longitude: true,
       planTier: true,
       specialties: { select: { specialty: { select: { name: true } } } },
+      photos: { take: 1, orderBy: { createdAt: "asc" }, select: { url: true } },
     },
     // Cap the candidate set for in-memory distance sort/pagination; a
     // production-scale dataset would use a geo-indexed query instead.
@@ -88,8 +92,11 @@ export async function searchNurseries(params: NurserySearchParams) {
     name: n.name,
     city: n.city,
     state: n.state,
+    latitude: n.latitude,
+    longitude: n.longitude,
     planTier: n.planTier,
     specialtyNames: n.specialties.map((s) => s.specialty.name),
+    photoUrl: n.photos[0]?.url ?? null,
     distanceMiles: params.near
       ? haversineMiles(params.near.lat, params.near.lng, n.latitude, n.longitude)
       : null,
@@ -122,6 +129,10 @@ export async function getNurseryBySlug(slug: string) {
     include: {
       specialties: { include: { specialty: true } },
       photos: true,
+      reviews: {
+        orderBy: { createdAt: "desc" },
+        include: { author: { select: { name: true } } },
+      },
     },
   });
 }
@@ -129,9 +140,20 @@ export async function getNurseryBySlug(slug: string) {
 export async function getFeaturedNurseries(limit = 6) {
   return prisma.nursery.findMany({
     where: { status: "PUBLISHED", planTier: { in: ["FEATURED", "PREMIUM"] } },
-    orderBy: [{ planTier: "asc" }, { createdAt: "desc" }],
+    // desc so PREMIUM (highest tier) sorts before FEATURED, and a verified
+    // listing sorts before an unverified one of the same tier — the
+    // homepage spotlight should lead with the most complete, trustworthy
+    // listing, not just whichever paid tier row happens to be newest.
+    orderBy: [
+      { planTier: "desc" },
+      { verifiedAt: { sort: "desc", nulls: "last" } },
+      { createdAt: "desc" },
+    ],
     take: limit,
-    include: { specialties: { include: { specialty: true } } },
+    include: {
+      specialties: { include: { specialty: true } },
+      photos: { take: 1, orderBy: { createdAt: "asc" } },
+    },
   });
 }
 
