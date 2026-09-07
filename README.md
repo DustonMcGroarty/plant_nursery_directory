@@ -33,6 +33,63 @@ United States, built with Next.js (App Router) and PostgreSQL/Prisma.
   premium listings are pinned above free ones in search results and get a
   badge; no payment processing is wired up yet, just the schema/UI hooks.
 
+## Launching without touching a terminal
+
+If you're not going to run any commands yourself, this is the click-only
+path from "code on GitHub" to "live site with real nurseries in it." It
+takes maybe 20 minutes of clicking plus however long the data import runs
+in the background. Three free accounts are involved — Supabase (database),
+GitHub (already have this one — it's where the code lives), and Vercel
+(hosting) — you'll sign in to the second two with your GitHub account, no
+new password to make up.
+
+1. **Create the database.** Go to [supabase.com](https://supabase.com),
+   sign in, and click **New project**. Pick any name/region/password
+   (the password is only for Supabase's own dashboard — you won't need to
+   remember it for this). Wait for it to say the project is ready.
+2. **Copy two connection strings.** In the new project, go to
+   **Settings → Database**. You'll see a "Connection string" section with
+   a few tabs/modes — copy the **Transaction pooler** string (port 6543)
+   and the **Session pooler** (or "Direct connection") string (port 5432).
+   Each looks like `postgresql://postgres.xxxx:...`. Keep this tab open.
+3. **Add those as GitHub secrets.** In this repository on GitHub, go to
+   **Settings → Secrets and variables → Actions**, and click **New
+   repository secret** twice, creating:
+   - `DATABASE_URL` = the port-6543 string from step 2
+   - `DIRECT_URL` = the port-5432 string from step 2
+4. **Create the database tables.** Still on GitHub, go to the **Actions**
+   tab, click **Create/update database tables** in the left sidebar, then
+   **Run workflow** → **Run workflow**. Wait for the green checkmark —
+   that means your new Supabase database now has the right tables. You
+   only need this again in the future if the app's data model changes.
+5. **Import real nurseries.** Still on the **Actions** tab, click
+   **Import nurseries from OpenStreetMap** in the left sidebar, then the
+   **Run workflow** button, then **Run workflow** again in the little
+   dropdown that appears (leave the two optional fields blank for a full
+   nationwide import, or put a couple of state codes like `TX,OR` in
+   "only_states" first, as a quick test). This runs in GitHub's cloud, not
+   your computer — you can close the tab and check back later. It can
+   take a while; refresh the page to see progress. Every imported nursery
+   starts **unclaimed and pending review**, so nothing goes public yet.
+6. **Deploy the site.** Go to [vercel.com/new](https://vercel.com/new),
+   sign in with GitHub, and import this repository. When it asks for
+   environment variables, add:
+   - `DATABASE_URL` and `DIRECT_URL` — same two values as step 3
+   - `ADMIN_SECRET` — make up a long random password; this is what
+     protects `/admin` on the live site, so save it somewhere
+   - `NEXT_PUBLIC_SITE_URL` — leave this blank for now; once you click
+     **Deploy** below and Vercel gives you the live URL, come back to
+     **Settings → Environment Variables**, add it then, and redeploy
+     (**Deployments** tab → **⋯** → **Redeploy**) so it takes effect
+   Click **Deploy**.
+7. **Review and publish.** Visit `your-site-url/admin`, log in with the
+   `ADMIN_SECRET` from step 6, open **Submissions**, and approve the
+   nurseries you want live (or bulk-select and publish from
+   **Listings**). The site is now real.
+
+From here, re-running step 5 later (e.g. after OSM gets more data in your
+area) is safe — it skips nurseries already imported.
+
 ## Tech stack
 
 - Next.js 16 (App Router, Server Actions, Turbopack)
@@ -91,10 +148,12 @@ as `status: PENDING` so they go through the `/admin` moderation queue
 before appearing publicly (both sources occasionally include mis-tagged
 or stale businesses, so a human sanity-check is worth the friction).
 
-**Neither runs automatically.** This sandboxed dev environment's network
-policy blocks both APIs, so these need to be run from an environment with
-normal internet access — your own machine, a CI job, or after the app is
-deployed.
+**Not a fit for a sandboxed dev environment whose network policy blocks
+outbound API access** (Overpass, Places, and — for the OSM path — a
+GitHub Actions workflow are all fine; a locked-down local sandbox is not).
+The OSM import has a no-terminal path via GitHub Actions — see "Launching
+without touching a terminal" above. Both scripts also run the normal way
+from any machine/CI job with real internet access, shown below.
 
 ### Option A: OpenStreetMap (recommended — free, no API key)
 
@@ -170,10 +229,12 @@ via a public-records-request email to the licensing division) — there's
 no single script that covers all 50. This one is the pattern to copy for
 the next state.
 
-## Recommended path: populate Supabase, then deploy
+## Recommended path: populate Supabase, then deploy (terminal version)
 
-This runs the OpenStreetMap import once, against your real production
-database, before the site is public — so nobody sees placeholder data.
+Same outcome as "Launching without touching a terminal" above, run from a
+command line instead of clicking through GitHub/Vercel's UIs — runs the
+OpenStreetMap import once, against your real production database, before
+the site is public, so nobody sees placeholder data.
 
 1. **Create a Supabase project** (supabase.com -> New project). Wait for
    it to finish provisioning.
@@ -207,6 +268,8 @@ database, before the site is public — so nobody sees placeholder data.
 ## Project structure
 
 ```
+.github/workflows/migrate-database.yml  No-terminal "create tables" step — see launch guide above
+.github/workflows/import-osm.yml        No-terminal OSM import — see launch guide above
 prisma/schema.prisma             Data model (Nursery, Specialty, ClaimRequest, User, Review, ...)
 prisma/seed.ts                   Synthetic sample data for local dev
 scripts/import-osm.ts            OpenStreetMap import pipeline (recommended)

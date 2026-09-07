@@ -1,0 +1,45 @@
+name: Import nurseries from OpenStreetMap
+
+# Manual-only: click "Run workflow" on the Actions tab. Runs
+# scripts/import-osm.ts against a real database with normal internet
+# access (GitHub's runners aren't behind the network restrictions a local
+# sandboxed dev environment might have), so this is the no-terminal way to
+# populate the directory with real, nationwide nursery data. See the
+# "Launching without a terminal" section in README.md for the full
+# click-by-click walkthrough, including which repo secrets this needs.
+on:
+  workflow_dispatch:
+    inputs:
+      auto_publish:
+        description: "Publish imported listings immediately, skipping /admin review"
+        type: boolean
+        required: false
+        default: false
+      only_states:
+        description: "Optional: comma-separated 2-letter state codes for a smaller test run (e.g. TX,OR). Leave blank to import all 50 states + DC."
+        type: string
+        required: false
+        default: ""
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx prisma generate
+
+      - run: npm run db:import-osm
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          AUTO_PUBLISH_IMPORTS: ${{ inputs.auto_publish }}
+          ONLY_STATES: ${{ inputs.only_states }}

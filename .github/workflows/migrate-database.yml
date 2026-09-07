@@ -1,0 +1,30 @@
+name: Create/update database tables
+
+# Manual-only: click "Run workflow" on the Actions tab. Runs
+# `prisma migrate deploy`, which applies the committed migrations in
+# prisma/migrations/ to whatever database DATABASE_URL/DIRECT_URL point
+# at — the one-time (and then occasional, after future schema changes)
+# step of creating the actual tables in a fresh database (e.g. right
+# after creating a new Supabase project). Safe to re-run: already-applied
+# migrations are skipped. See the "Launching without touching a terminal"
+# section in README.md.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
