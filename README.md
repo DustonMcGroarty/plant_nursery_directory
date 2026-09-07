@@ -1,4 +1,4 @@
-# Root & Bloom — US Plant Nursery Directory
+# Find Plant Nurseries — US Plant Nursery Directory
 
 A searchable directory of plant nurseries and garden centers across the
 United States, built with Next.js (App Router) and PostgreSQL/Prisma.

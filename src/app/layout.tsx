@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Root & Bloom — US Plant Nursery Directory",
-    template: "%s | Root & Bloom",
+    default: "Find Plant Nurseries — US Plant Nursery Directory",
+    template: "%s | Find Plant Nurseries",
   },
   description:
     "Find plant nurseries and garden centers near you. Search by location and specialty across the United States.",

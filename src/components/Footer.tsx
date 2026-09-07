@@ -3,8 +3,8 @@ export function Footer() {
     <footer className="border-t border-border bg-surface">
       <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-muted sm:px-6">
         <p>
-          Root &amp; Bloom is a community-built directory of plant nurseries and
-          garden centers across the United States.
+          Find Plant Nurseries is a community-built directory of plant
+          nurseries and garden centers across the United States.
         </p>
         <p className="mt-2">
           Don&apos;t see a nursery listed?{" "}
