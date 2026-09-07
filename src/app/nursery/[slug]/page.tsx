@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getNurseryBySlug } from "@/lib/nursery-queries";
 import { PlanBadge } from "@/components/PlanBadge";
+import { LimitedInfoBadge, isThinListing } from "@/components/LimitedInfoBadge";
 import { stateName } from "@/lib/us-states";
 
 export const revalidate = 3600;
@@ -83,7 +84,10 @@ export default async function NurseryPage({
 
       <div className="mt-4 flex items-start justify-between gap-3">
         <h1 className="text-2xl font-bold">{nursery.name}</h1>
-        <PlanBadge planTier={nursery.planTier} />
+        <div className="flex shrink-0 gap-2">
+          {isThinListing(nursery) && <LimitedInfoBadge />}
+          <PlanBadge planTier={nursery.planTier} />
+        </div>
       </div>
       <p className="mt-1 text-muted">
         {nursery.city}, {stateName(nursery.state)}
@@ -175,11 +179,13 @@ export default async function NurseryPage({
       )}
 
       <div className="mt-6 rounded-lg border border-dashed border-border p-4 text-sm text-muted">
-        Is this your nursery?{" "}
+        {isThinListing(nursery)
+          ? "We don't have much on file for this nursery yet — just a name and location. "
+          : "Is this your nursery? "}
         <Link href={`/submit?claim=${nursery.slug}`} className="text-primary underline">
           Claim this listing
         </Link>{" "}
-        to update its details.
+        to {isThinListing(nursery) ? "add a phone number, website, address, and more." : "update its details."}
       </div>
     </div>
   );
