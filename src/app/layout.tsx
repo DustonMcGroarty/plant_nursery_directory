@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   // to absolute ones. Without this, Next falls back to localhost, and
   // social previews on the deployed site would point at a URL nobody but
   // this machine can reach. Set NEXT_PUBLIC_SITE_URL in production.
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: {
     default: "Find Plant Nurseries — US Plant Nursery Directory",
     template: "%s | Find Plant Nurseries",
