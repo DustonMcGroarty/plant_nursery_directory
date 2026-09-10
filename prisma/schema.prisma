@@ -2,8 +2,13 @@
 // Learn more: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider   = "prisma-client"
+  output     = "../src/generated/prisma"
+  // Wasm-based query compiler, no platform-specific Rust engine binary —
+  // that binary was failing to get bundled into Vercel's serverless
+  // functions when the client output lives outside node_modules.
+  // See src/lib/prisma.ts, which supplies the required driver adapter.
+  engineType = "client"
 }
 
 datasource db {

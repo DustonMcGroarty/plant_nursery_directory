@@ -10,14 +10,6 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
-  // Prisma's client is generated to src/generated/prisma (not the default
-  // node_modules/@prisma/client location Next.js auto-traces), so its
-  // query engine binary isn't picked up by automatic file tracing —
-  // causing "Prisma Client could not locate the query engine" on
-  // whichever serverless functions didn't happen to trace it in.
-  outputFileTracingIncludes: {
-    "/**/*": ["./src/generated/prisma/**/*"],
-  },
 };
 
 export default nextConfig;
