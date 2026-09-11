@@ -1,0 +1,30 @@
+name: Seed specialty catalog + feature a few listings
+
+# Manual-only: click "Run workflow" on the Actions tab. Runs
+# scripts/seed-homepage-content.ts, which populates the Specialty catalog
+# (the filter chips on the homepage/search) and marks a handful of real
+# published nurseries as FEATURED/PREMIUM so the homepage's "Featured
+# Nurseries" table isn't empty. Neither of those happens automatically from
+# the OpenStreetMap import. Safe to re-run — see the script's own comments.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx prisma generate
+
+      - run: npx tsx scripts/seed-homepage-content.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}

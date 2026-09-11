@@ -6,10 +6,8 @@
  * is run with a real API key. See README for how to run the real import.
  */
 import "dotenv/config";
-import { PrismaClient } from "../src/generated/prisma/client";
+import { prisma } from "../src/lib/prisma";
 import slugify from "slugify";
-
-const prisma = new PrismaClient();
 
 const SPECIALTIES = [
   { name: "Native Plants", slug: "native-plants" },

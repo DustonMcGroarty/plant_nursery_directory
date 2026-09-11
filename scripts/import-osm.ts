@@ -30,11 +30,9 @@
  * polygons, not businesses).
  */
 import "dotenv/config";
-import { PrismaClient } from "../src/generated/prisma/client";
+import { prisma } from "../src/lib/prisma";
 import slugify from "slugify";
 import { US_STATES } from "../src/lib/us-states";
-
-const prisma = new PrismaClient();
 
 const AUTO_PUBLISH = process.env.AUTO_PUBLISH_IMPORTS === "true";
 

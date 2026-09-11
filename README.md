@@ -84,6 +84,13 @@ to step 5.
    them to **Published**. (**Submissions** is a different queue — that's
    only for claims/new listings people submit through the public
    `/submit` form, not the bulk import.) The site is now real.
+7. **Populate the homepage's filter chips and Featured section.** The
+   OpenStreetMap import doesn't touch the specialty catalog or feature any
+   listings, so on a freshly imported database the homepage's specialty
+   filter chips and "Featured Nurseries" table both start out empty. On
+   the **Actions** tab, run **Seed specialty catalog + feature a few
+   listings** once (same click-only "Run workflow" flow as step 4). Safe
+   to re-run.
 
 Re-running the import later (e.g. after OSM gets more data in your area)
 is safe — it skips nurseries already imported, so it only ever adds new
@@ -257,7 +264,14 @@ the site is public, so nobody sees placeholder data.
    `.env`, open `/admin`, and approve the imported listings (or set
    `AUTO_PUBLISH_IMPORTS=true` before running the import if you'd rather
    skip review and publish everything immediately).
-6. **Deploy to Vercel**, pointing it at the same `DATABASE_URL` /
+6. **Populate the homepage's filter chips and Featured section:**
+   ```bash
+   npm run db:seed-homepage-content
+   ```
+   The OSM import doesn't create the specialty catalog or feature any
+   listings, so without this the homepage's filter chips and "Featured
+   Nurseries" table start out empty. Safe to re-run.
+7. **Deploy to Vercel**, pointing it at the same `DATABASE_URL` /
    `DIRECT_URL` / `ADMIN_SECRET` values as env vars in the Vercel project
    settings, plus `NEXT_PUBLIC_SITE_URL` set to your real domain (see
    `.env.example` — without it, the generated Open Graph/social share

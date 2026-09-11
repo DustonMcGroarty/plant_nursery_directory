@@ -10,9 +10,7 @@
  * Targets the existing "evergreen-nursery-orlando-fl" seed row by slug.
  */
 import "dotenv/config";
-import { PrismaClient } from "../src/generated/prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "../src/lib/prisma";
 
 const SLUG = "evergreen-nursery-orlando-fl";
 

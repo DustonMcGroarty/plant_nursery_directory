@@ -9,6 +9,7 @@
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed-showcase": "tsx scripts/seed-showcase-listing.ts",
+    "db:seed-homepage-content": "tsx scripts/seed-homepage-content.ts",
     "db:import-places": "tsx scripts/import-places.ts",
     "db:import-osm": "tsx scripts/import-osm.ts",
     "parse:wa-pdf": "tsx scripts/parse-wa-nursery-pdf.ts"
