@@ -25,6 +25,9 @@ jobs:
   import:
     runs-on: ubuntu-latest
     timeout-minutes: 180
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -35,11 +38,12 @@ jobs:
 
       - run: npm ci
 
+      # prisma.config.ts requires DATABASE_URL to even load, so this needs
+      # the job-level env above (not just the next step) despite not
+      # touching the database itself.
       - run: npx prisma generate
 
       - run: npm run db:import-osm
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.DIRECT_URL }}
           AUTO_PUBLISH_IMPORTS: ${{ inputs.auto_publish }}
           ONLY_STATES: ${{ inputs.only_states }}
