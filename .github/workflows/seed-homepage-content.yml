@@ -12,6 +12,9 @@ on:
 jobs:
   seed:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -22,9 +25,9 @@ jobs:
 
       - run: npm ci
 
+      # prisma.config.ts requires DATABASE_URL to even load, so this needs
+      # the job-level env above (not just the final step) despite not
+      # touching the database itself.
       - run: npx prisma generate
 
       - run: npx tsx scripts/seed-homepage-content.ts
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.DIRECT_URL }}
