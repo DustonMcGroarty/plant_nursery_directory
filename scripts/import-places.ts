@@ -29,10 +29,8 @@
  * concern.
  */
 import "dotenv/config";
-import { PrismaClient } from "../src/generated/prisma/client";
+import { prisma } from "../src/lib/prisma";
 import slugify from "slugify";
-
-const prisma = new PrismaClient();
 
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY;
 const AUTO_PUBLISH = process.env.AUTO_PUBLISH_IMPORTS === "true";
