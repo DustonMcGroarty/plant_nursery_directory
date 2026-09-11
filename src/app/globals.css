@@ -25,20 +25,6 @@
   --font-sans: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #101513;
-    --foreground: #eef3f1;
-    --surface: #182220;
-    --border: #263230;
-    --primary: #2dd4bf;
-    --primary-dark: #123a32;
-    --primary-contrast: #0a2420;
-    --accent: #e0b84a;
-    --muted: #93a19d;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
